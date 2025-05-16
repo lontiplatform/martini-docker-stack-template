@@ -1,0 +1,1 @@
+# martini-docker-stack-template
