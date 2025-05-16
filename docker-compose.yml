@@ -1,0 +1,59 @@
+services:
+  martini:
+    image: toroio/martini-runtime:latest
+    container_name: martini-runtime
+    restart: always
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    mem_limit: 1g
+    cpus: 2.0
+    volumes:
+      - ./conf/db-pool/:/data/conf/db-pool
+      - ./logs:/data/logs
+      - ./conf/overrides:/data/conf/overrides
+      - ./data:/data/data
+      - ./packages:/data/packages
+    environment:
+      - MR_LICENSE=${MR_LICENSE}
+      - MR_TRACKER_DATABASE_NAME=tracker        # Required property to enable external database for Tracker
+      - MR_TRACKER_ENABLE_EMBEDDED_DATABASE=false   # Required property to enable external database for Tracker
+    depends_on:
+      - postgres
+      - cassandra
+    networks:
+      - martini_network
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgresql/data:/var/lib/postgresql/data
+    networks:
+      -  martini_network
+
+  cassandra:
+    image: cassandra:latest
+    container_name: cassandra
+    restart: always
+    environment:
+      - CASSANDRA_AUTHENTICATOR=PasswordAuthenticator
+      - CASSANDRA_USER=${CASSANDRA_USER}
+      - CASSANDRA_PASSWORD=${CASSANDRA_PASSWORD}
+    ports:
+      - "9042:9042"
+    volumes:
+      - ./cassandra/data:/var/lib/cassandra
+    networks:
+      -  martini_network
+
+networks:
+  martini_network:
+    driver: bridge
