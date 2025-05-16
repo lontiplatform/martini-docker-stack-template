@@ -51,7 +51,7 @@ CASSANDRA_PASSWORD=your_cassandra_password
 ### Environment Variables in `docker-compose.yml`
 
 * `MR_TRACKER_DATABASE_NAME` sets the name of the external database used by Martini Tracker.
-* `MR_TRACKER_ENABLE_EMBEDDED_DATABASE=false` disables the embedded Nitrite database in favor of external DBs.
+* `MR_TRACKER_ENABLE_EMBEDDED_DATABASE=false` disables the embedded Nitrite database in favor of external DBs, in this case it uses Cassandra for Tracker.
 
 ## Usage
 
@@ -73,7 +73,7 @@ To stop the stack:
 docker-compose down
 ```
 
-> Use `--volumes` with `down` if you want to clear stored data:
+> Use `--volumes` with `down` if you want to clear stored data (*this is only applicable for volume mounts*):
 
 ```bash
     docker-compose down --volumes
