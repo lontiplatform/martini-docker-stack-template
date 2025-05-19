@@ -1,16 +1,16 @@
 # Martini Runtime Docker Stack
 
-This repository provides a Docker-based stack to run the Martini Runtime along with PostgreSQL and Cassandra. It includes automated volume mounting and configuration for external database connectivity to PostgreSQL and Cassandra.
+This repository provides a Docker-based stack to run Martini Runtime with support for external database integration. It includes automated bind mounting and a modular structure to support custom configuration and data persistence.
 
 ## Stack Overview
 
 This `docker-compose` implementation includes:
 
 - **Martini Runtime** (via `lontiplatform/martini-server-runtime`)
-- **PostgreSQL** as the relational database
-- **Cassandra** as the Tracker database
-- Automatic mounting of database configurations into the Martini container, while logs, data, and packages are persisted from the container to the host
-- External database connectivity setup for Martini Tracker and PostgreSQL
+- Support for **external databases** such as relational (e.g., PostgreSQL) and NoSQL (e.g., Cassandra)
+- Automatic mounting of configuration files into the Martini container
+- Persistent storage for logs, data, and packages on the host machine
+- Example setup for PostgreSQL and Cassandra as external databases for Martini
 
 ## Project Structure
 
@@ -48,10 +48,14 @@ CASSANDRA_USER=your_cassandra_user
 CASSANDRA_PASSWORD=your_cassandra_password
 ```
 
+> You can adjust or extend this file based on the external databases you plan to use.
+
 ### Environment Variables in `docker-compose.yml`
 
 * `MR_TRACKER_DATABASE_NAME` sets the name of the external database used by Martini Tracker.
 * `MR_TRACKER_ENABLE_EMBEDDED_DATABASE=false` disables the embedded Nitrite database in favor of external DBs, in this case it uses Cassandra for Tracker.
+
+> **Note:** If you prefer not to use an external database for Tracker (e.g., Cassandra), you can revert to the embedded **Nitrite** database by simply removing or commenting out the related `MR_TRACKER_*` environment variables in the `docker-compose.yml` file. Martini will automatically fall back to using the embedded database.
 
 ## Usage
 
@@ -64,8 +68,7 @@ To build and run the stack:
 This will:
 
 * Start Martini on ports **8080 (HTTP)** and **8443 (HTTPS)**
-* Start PostgreSQL on **5432**
-* Start Cassandra on **9042**
+* Start example databases on their default ports (e.g., PostgreSQL on 5432, Cassandra on 9042)
 
 To stop the stack:
 
@@ -88,7 +91,11 @@ Once the containers are running:
 
 ### Connecting to Databases from Martini
 
-This Docker Compose implementation **automatically configures database connections** by mounting pre-created `.dbxml` files into the Martini container. These files are placed in the `conf/db-pool/` directory and are loaded by Martini at runtime.
+This setup supports connecting Martini to one or more external databases. By default, the stack includes examples for PostgreSQL and Cassandra, but you can customize it to use any compatible database by:
+
+1. Adding the service definition in docker-compose.yml
+
+2. Mounting the relevant .dbxml configuration files into the conf/db-pool/ directory
 
 When defining your database connection pools in Martini (e.g., via `.dbxml` files), you can use the service names defined in `docker-compose.yml` as hostnames instead of static IP addresses:
 
@@ -109,12 +116,12 @@ For example, in your `.dbxml` configuration file:
 </database>
 ````
 
+This approach applies equally to other database types (e.g., MySQL, MongoDB) with the appropriate JDBC URL and driver. For detailed examples and database-specific properties, refer to the official [Martini JDBC configuration documentation](https://developer.lonti.com/docs/martini/installation-configuration/server-runtime/self-managed/configuration/dependencies/databases/jdbc/#database-properties). 
+
 > This works because Docker Compose creates a shared network (`martini_network`) where each service name acts as its hostname.
 
 ## Notes
 
 * Ensure Docker is installed and running before using this stack.
 * Martini requires a valid license key to run. Set it via the `MR_LICENSE` environment variable.
-* Logs and data will persist across container restarts via mounted volumes.
-
-
+* Logs and data will persist across container restarts through bind mounts to the host filesystem.
