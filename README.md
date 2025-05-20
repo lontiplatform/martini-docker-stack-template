@@ -10,7 +10,7 @@ This `docker-compose` implementation includes:
 - Support for **external databases** such as relational (e.g., PostgreSQL) and NoSQL (e.g., Cassandra)
 - Automatic mounting of configuration files into the Martini container
 - Persistent storage for logs, data, and packages on the host machine
-- Example setup for PostgreSQL, Cassandra or DynamoDB for Tracker, MySQL, SQL Server, and Oracle as external databases for Martini
+- Example setup using PostgreSQL, MySQL, SQL Server, or Oracle as external JDBC datasources, and Cassandra or DynamoDB as alternatives for Tracker database
 
 ## Project Structure
 
@@ -41,7 +41,7 @@ Create a `.env` file in the root directory with the following variables:
 # Martini Runtime
 MR_LICENSE=your_martini_license_key
 MR_TRACKER_DATABASE_NAME=
-MR_TRACKER_ENABLE_EMBEDDED_DATABASE=false
+MR_TRACKER_ENABLE_EMBEDDED_DATABASE=false        # Set value to `true` to use the embedded database or `false` to use Cassandra or DynamoDB as the Tracker database
 MR_TRACKER_DYNAMODB_TABLE=
 MR_TRACKER_DYNAMODB_STATE_TABLE=
 MR_TRACKER_DYNAMODB_STATE_CONTENT_TABLE_NAME=
@@ -151,15 +151,41 @@ This approach applies equally to other database types (e.g., MySQL, MongoDB) wit
 
 > This works because Docker Compose creates a shared network (`martini_network`) where each service name acts as its hostname.
 
+### Enabling Additional Databases
+
+By default, only **PostgreSQL** and **Cassandra** are enabled in the `docker-compose.yml` file as examples. Other database services such as **MySQL**, **Oracle**, **Microsoft SQL Server**, and **DynamoDB (for Tracker)** are included but **commented out** to keep the stack lightweight.
+
+To enable any of these additional databases:
+
+1. **Open** the `docker-compose.yml` file.
+2. **Locate** the commented-out service block for the database you want to use.
+3. **Uncomment** the service definition and any associated volume or network configuration.
+
+For example, to enable **MySQL**, remove the `#` symbols from:
+
+```yaml
+# mysql:
+#   image: mysql:latest
+#   environment:
+#     MYSQL_ROOT_PASSWORD: your_password
+#     MYSQL_DATABASE: your_db
+#     MYSQL_USER: your_user
+#     MYSQL_PASSWORD: your_password
+    ports:
+      - "3306:3306"
+#   volumes:
+#     - ./mysql-data:/var/lib/mysql
+#   networks:
+#     - martini_network
+```
+
+Be sure to update and mount the corresponding `.dbxml` configuration in `conf/db-pool/` with the correct JDBC connection URL, credentials, and driver class name for the database you enabled. This repository includes sample `.dbxml` files for each supported database under the `conf/db-pool/` directory. You can use or customize these as needed for your environment.
+
 ## Notes
 
 * Ensure Docker is installed and running before using this stack.
 * Martini requires a valid license key to run. Set it via the `MR_LICENSE` environment variable.
 * Logs and data will persist across container restarts through bind mounts to the host filesystem.
-
-
-
-
 
 
 

@@ -6,7 +6,7 @@ services:
     ports:
       - "8080:8080"
       - "8443:8443"
-    mem_limit: 1g
+    mem_limit: 4g
     cpus: 2.0
     volumes:
       - ./conf/db-pool/:/data/conf/db-pool
@@ -25,9 +25,9 @@ services:
     depends_on:
       - postgres
       - cassandra
-      - mssql
-      - mysql
-      - oracle
+  #    - mssql
+  #    - mysql
+  #    - oracle
     networks:
       - martini_network
 
@@ -46,21 +46,21 @@ services:
     networks:
       -  martini_network
 
-  mysql:
-    image: mysql:latest
-    container_name: mysql
-    restart: always
-    environment:
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-    ports:
-      - "3306:3306"
-    volumes:
-      - ./mysql-data:/var/lib/mysql
-    networks:
-      - martini_network
+  # mysql:
+  #   image: mysql:latest
+  #   container_name: mysql
+  #   restart: always
+  #   environment:
+  #     - MYSQL_USER=${MYSQL_USER}
+  #     - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+  #     - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+  #     - MYSQL_DATABASE=${MYSQL_DATABASE}
+  #   ports:
+  #     - "3306:3306"
+  #   volumes:
+  #     - ./mysql-data:/var/lib/mysql
+  #   networks:
+  #     - martini_network
 
   cassandra:
     image: cassandra:latest
@@ -77,39 +77,39 @@ services:
     networks:
       -  martini_network
 
-  mssql:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: mssql
-    environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=${SA_PASSWORD}
-    ports:
-      - "1433:1433"
-    volumes:
-      - ./mssql:/var/opt/mssql
-    networks:
-      - martini_network
+  # mssql:
+  #   image: mcr.microsoft.com/mssql/server:2022-latest
+  #   container_name: mssql
+  #   environment:
+  #     - ACCEPT_EULA=Y
+  #     - SA_PASSWORD=${SA_PASSWORD}
+  #   ports:
+  #     - "1433:1433"
+  #   volumes:
+  #     - ./mssql:/var/opt/mssql
+  #   networks:
+  #     - martini_network
 
-  oracle:
-     image: gvenzl/oracle-free:latest
-     container_name: oracle
-     environment:
-       - ORACLE_PASSWORD=${ORACLE_PASSWORD}
-       - APP_USER=${APP_USER}
-       - APP_USER_PASSWORD=${APP_USER_PASSWORD}
-     ports:
-       - "1521:1521"
-     healthcheck:
-       test: ["CMD", "healthcheck.sh"]
-       interval: 10s
-       timeout: 5s
-       retries: 10
-       start_period: 5s
-       start_interval: 5s
-     volumes:
-        - ./oracledata:/opt/oracle/oradata
-     networks:
-        - martini_network
+  # oracle:
+  #    image: gvenzl/oracle-free:latest
+  #    container_name: oracle
+  #    environment:
+  #      - ORACLE_PASSWORD=${ORACLE_PASSWORD}
+  #      - APP_USER=${APP_USER}
+  #      - APP_USER_PASSWORD=${APP_USER_PASSWORD}
+  #    ports:
+  #      - "1521:1521"
+  #    healthcheck:
+  #      test: ["CMD", "healthcheck.sh"]
+  #      interval: 10s
+  #      timeout: 5s
+  #      retries: 10
+  #      start_period: 5s
+  #      start_interval: 5s
+  #    volumes:
+  #       - ./oracledata:/opt/oracle/oradata
+  #    networks:
+  #       - martini_network
 
 networks:
   martini_network:
