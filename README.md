@@ -171,8 +171,8 @@ For example, to enable **MySQL**, remove the `#` symbols from:
 #     MYSQL_DATABASE: your_db
 #     MYSQL_USER: your_user
 #     MYSQL_PASSWORD: your_password
-    ports:
-      - "3306:3306"
+#    ports:
+#      - "3306:3306"
 #   volumes:
 #     - ./mysql-data:/var/lib/mysql
 #   networks:
