@@ -10,7 +10,7 @@ This `docker-compose` implementation includes:
 - Support for **external databases** such as relational (e.g., PostgreSQL) and NoSQL (e.g., Cassandra)
 - Automatic mounting of configuration files into the Martini container
 - Persistent storage for logs, data, and packages on the host machine
-- Example setup for PostgreSQL and Cassandra as external databases for Martini
+- Example setup for PostgreSQL, Cassandra or DynamoDB for Tracker, MySQL, SQL Server, and Oracle as external databases for Martini
 
 ## Project Structure
 
@@ -38,14 +38,38 @@ This `docker-compose` implementation includes:
 Create a `.env` file in the root directory with the following variables:
 
 ```env
+# Martini Runtime
 MR_LICENSE=your_martini_license_key
+MR_TRACKER_DATABASE_NAME=
+MR_TRACKER_ENABLE_EMBEDDED_DATABASE=false
+MR_TRACKER_DYNAMODB_TABLE=
+MR_TRACKER_DYNAMODB_STATE_TABLE=
+MR_TRACKER_DYNAMODB_STATE_CONTENT_TABLE_NAME=
+MR_TRACKER_DYNAMODB_TYPE_TABLE_NAME=
 
+# Postgres
 POSTGRES_USER=your_pg_user
 POSTGRES_PASSWORD=your_pg_password
 POSTGRES_DB=your_pg_db
 
+#Cassandra
 CASSANDRA_USER=your_cassandra_user
 CASSANDRA_PASSWORD=your_cassandra_password
+
+#MySQL
+MYSQL_USER=your_mysql_user
+MYSQL_ROOT_PASSWORD=your_mysql_root_password
+MYSQL_PASSWORD=your_mysql_user_password
+MYSQL_DATABASE=your_mysql_db
+
+#SQL Server
+SA_PASSWORD=your_mssql_password
+ACCEPT_EULA=Y                   
+
+#Oracle
+ORACLE_PASSWORD=your_oracle_password
+APP_USER=your_app_user
+APP_USER_PASSWORD=your_app_user_password
 ```
 
 > You can adjust or extend this file based on the external databases you plan to use.
@@ -54,8 +78,12 @@ CASSANDRA_PASSWORD=your_cassandra_password
 
 * `MR_TRACKER_DATABASE_NAME` sets the name of the external database used by Martini Tracker.
 * `MR_TRACKER_ENABLE_EMBEDDED_DATABASE=false` disables the embedded Nitrite database in favor of external DBs, in this case it uses Cassandra for Tracker.
+* `MR_TRACKER_DYNAMODB_TABLE` Name of the DynamoDB table used to store tracker records.
+* `MR_TRACKER_DYNAMODB_STATE_TABLE` Name of the DynamoDB table used to store tracker state information.
+* `MR_TRACKER_DYNAMODB_STATE_CONTENT_TABLE_NAME` Name of the DynamoDB table used to store tracker state content.
+* `MR_TRACKER_DYNAMODB_TYPE_TABLE_NAME` Name of the DynamoDB table used to store tracker document type mappings.
 
-> **Note:** If you prefer not to use an external database for Tracker (e.g., Cassandra), you can revert to the embedded **Nitrite** database by simply removing or commenting out the related `MR_TRACKER_*` environment variables in the `docker-compose.yml` file. Martini will automatically fall back to using the embedded database.
+> **Note:** If you prefer not to use an external database for Tracker (e.g., Cassandra or DynamoDB), you can revert to the embedded **Nitrite** database by simply removing or commenting out the related `MR_TRACKER_*` environment variables in the `docker-compose.yml` file. Martini will automatically fall back to using the embedded database.
 
 ## Usage
 
@@ -87,11 +115,11 @@ docker-compose down
 Once the containers are running:
 
 * Visit [http://localhost:8080](http://localhost:8080) to access the Martini UI.
-* Check PostgreSQL and Cassandra connectivity using the API explorer.
+* Check databases connectivity using the API explorer.
 
 ### Connecting to Databases from Martini
 
-This setup supports connecting Martini to one or more external databases. By default, the stack includes examples for PostgreSQL and Cassandra, but you can customize it to use any compatible database by:
+This setup supports connecting Martini to one or more external databases. By default, the stack includes examples for different databases, but you can customize it to use any compatible database by:
 
 1. Adding the service definition in docker-compose.yml
 
@@ -99,10 +127,13 @@ This setup supports connecting Martini to one or more external databases. By def
 
 When defining your database connection pools in Martini (e.g., via `.dbxml` files), you can use the service names defined in `docker-compose.yml` as hostnames instead of static IP addresses:
 
-| Database     | Hostname     | Port  |
-|--------------|--------------|-------|
-| PostgreSQL   | `postgres`   | 5432  |
-| Cassandra    | `cassandra`  | 9042  |
+| Database                     | Hostname    | Port |
+| ---------------------------- | ----------- | ---- |
+| PostgreSQL                   | `postgres`  | 5432 |
+| Cassandra                    | `cassandra` | 9042 |
+| MySQL                        | `mysql`     | 3306 |
+| Oracle                       | `oracle`    | 1521 |
+| Microsoft SQL Server (MSSQL) | `mssql`     | 1433 |
 
 For example, in your `.dbxml` configuration file:
 
@@ -125,3 +156,10 @@ This approach applies equally to other database types (e.g., MySQL, MongoDB) wit
 * Ensure Docker is installed and running before using this stack.
 * Martini requires a valid license key to run. Set it via the `MR_LICENSE` environment variable.
 * Logs and data will persist across container restarts through bind mounts to the host filesystem.
+
+
+
+
+
+
+

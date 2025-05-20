@@ -16,11 +16,18 @@ services:
       - ./packages:/data/packages
     environment:
       - MR_LICENSE=${MR_LICENSE}
-      - MR_TRACKER_DATABASE_NAME=tracker        # Required property to enable external database for Tracker
-      - MR_TRACKER_ENABLE_EMBEDDED_DATABASE=false   # Required property to enable external database for Tracker
+      - MR_TRACKER_DATABASE_NAME=${MR_TRACKER_DATABASE_NAME}
+      - MR_TRACKER_ENABLE_EMBEDDED_DATABASE=${MR_TRACKER_ENABLE_EMBEDDED_DATABASE}
+      - MR_TRACKER_DYNAMODB_TABLE=${MR_TRACKER_DYNAMODB_TABLE}
+      - MR_TRACKER_DYNAMODB_STATE_TABLE=${MR_TRACKER_DYNAMODB_STATE_TABLE}
+      - MR_TRACKER_DYNAMODB_STATE_CONTENT_TABLE_NAME=${MR_TRACKER_DYNAMODB_STATE_CONTENT_TABLE_NAME}
+      - MR_TRACKER_DYNAMODB_TYPE_TABLE_NAME=${MR_TRACKER_DYNAMODB_TYPE_TABLE_NAME}
     depends_on:
       - postgres
       - cassandra
+      - mssql
+      - mysql
+      - oracle
     networks:
       - martini_network
 
@@ -35,9 +42,25 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./postgresql/data:/var/lib/postgresql/data
+      - ./pgsql-data:/var/lib/postgresql/data
     networks:
       -  martini_network
+
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    restart: always
+    environment:
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    networks:
+      - martini_network
 
   cassandra:
     image: cassandra:latest
@@ -50,9 +73,43 @@ services:
     ports:
       - "9042:9042"
     volumes:
-      - ./cassandra/data:/var/lib/cassandra
+      - ./cassandra-data:/var/lib/cassandra
     networks:
       -  martini_network
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: mssql
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SA_PASSWORD}
+    ports:
+      - "1433:1433"
+    volumes:
+      - ./mssql:/var/opt/mssql
+    networks:
+      - martini_network
+
+  oracle:
+     image: gvenzl/oracle-free:latest
+     container_name: oracle
+     environment:
+       - ORACLE_PASSWORD=${ORACLE_PASSWORD}
+       - APP_USER=${APP_USER}
+       - APP_USER_PASSWORD=${APP_USER_PASSWORD}
+     ports:
+       - "1521:1521"
+     healthcheck:
+       test: ["CMD", "healthcheck.sh"]
+       interval: 10s
+       timeout: 5s
+       retries: 10
+       start_period: 5s
+       start_interval: 5s
+     volumes:
+        - ./oracledata:/opt/oracle/oradata
+     networks:
+        - martini_network
 
 networks:
   martini_network:
