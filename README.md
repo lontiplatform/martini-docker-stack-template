@@ -153,13 +153,13 @@ This approach applies equally to other database types (e.g., MySQL, MongoDB) wit
 
 ### Enabling Additional Databases
 
-By default, only **PostgreSQL** and **Cassandra** are enabled in the `docker-compose.yml` file as examples. Other database services such as **MySQL**, **Oracle**, **Microsoft SQL Server**, and **DynamoDB (for Tracker)** are included but **commented out** to keep the stack lightweight.
+By default, all database services are commented out in the docker-compose.yml file to keep the stack minimal and flexible. This means no databases are enabled by default.
 
-To enable any of these additional databases:
+To use any database (e.g., PostgreSQL, MySQL, Oracle, Microsoft SQL Server, Cassandra or DynamoDB for Tracker):
 
 1. **Open** the `docker-compose.yml` file.
 2. **Locate** the commented-out service block for the database you want to use.
-3. **Uncomment** the service definition and any associated volume or network configuration.
+3. **Uncomment** the service definition **and** the entire `depends_on` section of the `martini` service, making sure to only include the databases you enabled in the list.
 
 For example, to enable **MySQL**, remove the `#` symbols from:
 
@@ -179,6 +179,18 @@ For example, to enable **MySQL**, remove the `#` symbols from:
 #     - martini_network
 ```
 
+And in the `martini` service, uncomment and update the `depends_on` section like this:
+
+```yaml
+depends_on:
+  # - postgres
+  # - cassandra
+   - mysql
+  # - oracle
+  # - mssql
+  # - dynamodb
+```
+
 Be sure to update and mount the corresponding `.dbxml` configuration in `conf/db-pool/` with the correct JDBC connection URL, credentials, and driver class name for the database you enabled. This repository includes sample `.dbxml` files for each supported database under the `conf/db-pool/` directory. You can use or customize these as needed for your environment.
 
 ## Notes
@@ -186,6 +198,7 @@ Be sure to update and mount the corresponding `.dbxml` configuration in `conf/db
 * Ensure Docker is installed and running before using this stack.
 * Martini requires a valid license key to run. Set it via the `MR_LICENSE` environment variable.
 * Logs and data will persist across container restarts through bind mounts to the host filesystem.
+
 
 
 

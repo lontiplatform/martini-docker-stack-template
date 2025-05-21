@@ -22,29 +22,29 @@ services:
       - MR_TRACKER_DYNAMODB_STATE_TABLE=${MR_TRACKER_DYNAMODB_STATE_TABLE}
       - MR_TRACKER_DYNAMODB_STATE_CONTENT_TABLE_NAME=${MR_TRACKER_DYNAMODB_STATE_CONTENT_TABLE_NAME}
       - MR_TRACKER_DYNAMODB_TYPE_TABLE_NAME=${MR_TRACKER_DYNAMODB_TYPE_TABLE_NAME}
-    depends_on:
-      - postgres
-      - cassandra
+  #  depends_on:
+  #    - postgres
+  #    - cassandra
   #    - mssql
   #    - mysql
   #    - oracle
     networks:
       - martini_network
 
-  postgres:
-    image: postgres:latest
-    container_name: postgres
-    restart: always
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-    ports:
-      - "5432:5432"
-    volumes:
-      - ./pgsql-data:/var/lib/postgresql/data
-    networks:
-      -  martini_network
+  # postgres:
+  #   image: postgres:latest
+  #   container_name: postgres
+  #   restart: always
+  #   environment:
+  #     - POSTGRES_USER=${POSTGRES_USER}
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+  #     - POSTGRES_DB=${POSTGRES_DB}
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - ./pgsql-data:/var/lib/postgresql/data
+  #   networks:
+  #     -  martini_network
 
   # mysql:
   #   image: mysql:latest
@@ -62,20 +62,20 @@ services:
   #   networks:
   #     - martini_network
 
-  cassandra:
-    image: cassandra:latest
-    container_name: cassandra
-    restart: always
-    environment:
-      - CASSANDRA_AUTHENTICATOR=PasswordAuthenticator
-      - CASSANDRA_USER=${CASSANDRA_USER}
-      - CASSANDRA_PASSWORD=${CASSANDRA_PASSWORD}
-    ports:
-      - "9042:9042"
-    volumes:
-      - ./cassandra-data:/var/lib/cassandra
-    networks:
-      -  martini_network
+  # cassandra:
+  #   image: cassandra:latest
+  #   container_name: cassandra
+  #   restart: always
+  #   environment:
+  #     - CASSANDRA_AUTHENTICATOR=PasswordAuthenticator
+  #     - CASSANDRA_USER=${CASSANDRA_USER}
+  #     - CASSANDRA_PASSWORD=${CASSANDRA_PASSWORD}
+  #   ports:
+  #     - "9042:9042"
+  #   volumes:
+  #     - ./cassandra-data:/var/lib/cassandra
+  #   networks:
+  #     -  martini_network
 
   # mssql:
   #   image: mcr.microsoft.com/mssql/server:2022-latest
