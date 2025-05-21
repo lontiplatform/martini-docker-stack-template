@@ -1,6 +1,6 @@
 services:
   martini:
-    image: toroio/martini-runtime:latest
+    image: lontiplatform/martini-server-runtime:latest
     container_name: martini-runtime
     restart: always
     ports:
