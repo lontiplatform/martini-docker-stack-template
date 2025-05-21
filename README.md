@@ -39,7 +39,7 @@ Create a `.env` file in the root directory with the following variables:
 
 ```env
 # Martini Runtime
-MR_LICENSE=your_martini_license_key
+MR_LICENSE=your_martini_license_key             # Login to https://console.lonti.com to obtain your license key
 MR_TRACKER_DATABASE_NAME=
 MR_TRACKER_ENABLE_EMBEDDED_DATABASE=false        # Set value to `true` to use the embedded database or `false` to use Cassandra or DynamoDB as the Tracker database
 MR_TRACKER_DYNAMODB_TABLE=
@@ -74,16 +74,58 @@ APP_USER_PASSWORD=your_app_user_password
 
 > You can adjust or extend this file based on the external databases you plan to use.
 
+---
+
 ### Environment Variables in `docker-compose.yml`
 
-* `MR_TRACKER_DATABASE_NAME` sets the name of the external database used by Martini Tracker.
-* `MR_TRACKER_ENABLE_EMBEDDED_DATABASE=false` disables the embedded Nitrite database in favor of external DBs, in this case it uses Cassandra for Tracker.
-* `MR_TRACKER_DYNAMODB_TABLE` Name of the DynamoDB table used to store tracker records.
-* `MR_TRACKER_DYNAMODB_STATE_TABLE` Name of the DynamoDB table used to store tracker state information.
-* `MR_TRACKER_DYNAMODB_STATE_CONTENT_TABLE_NAME` Name of the DynamoDB table used to store tracker state content.
-* `MR_TRACKER_DYNAMODB_TYPE_TABLE_NAME` Name of the DynamoDB table used to store tracker document type mappings.
+* `MR_TRACKER_DATABASE_NAME` — Sets the name of the external database used by Martini Tracker.
+* `MR_TRACKER_ENABLE_EMBEDDED_DATABASE` — Disables the embedded Nitrite database in favor of external DBs, such as Cassandra or DynamoDB if set to false.
+* `MR_TRACKER_DYNAMODB_TABLE` — Name of the DynamoDB table used to store tracker records.
+* `MR_TRACKER_DYNAMODB_STATE_TABLE` — Name of the DynamoDB table used to store tracker state information.
+* `MR_TRACKER_DYNAMODB_STATE_CONTENT_TABLE_NAME` — Name of the DynamoDB table used to store tracker state content.
+* `MR_TRACKER_DYNAMODB_TYPE_TABLE_NAME` — Name of the DynamoDB table used to store tracker document type mappings.
 
-> **Note:** If you prefer not to use an external database for Tracker (e.g., Cassandra or DynamoDB), you can revert to the embedded **Nitrite** database by simply removing or commenting out the related `MR_TRACKER_*` environment variables in the `docker-compose.yml` file. Martini will automatically fall back to using the embedded database.
+### Using Tracker with Different Databases
+
+Martini Tracker supports multiple databases. You can choose between the default embedded **Nitrite** database or external options like **Cassandra** or **DynamoDB**. Configuration depends on your selection:
+
+#### To use **Nitrite** (embedded database - default):
+
+* Set:
+
+  ```env
+  MR_TRACKER_ENABLE_EMBEDDED_DATABASE=true
+  ```
+* **Remove or comment out all other `MR_TRACKER_*` environment variables**, including those for Cassandra or DynamoDB.
+* No `.dbxml` configuration is required — Martini uses the embedded database automatically.
+
+#### To use **Cassandra**:
+
+* Set:
+
+  ```env
+  MR_TRACKER_ENABLE_EMBEDDED_DATABASE=false
+  MR_TRACKER_DATABASE_NAME=cassandra
+  ```
+* Mount the Cassandra-specific `.dbxml` file into `conf/db-pool/`.
+* **Comment out all `MR_TRACKER_DYNAMODB_*` variables** if present.
+
+#### To use **DynamoDB**:
+
+* Set:
+
+  ```env
+  MR_TRACKER_ENABLE_EMBEDDED_DATABASE=false
+  MR_TRACKER_DATABASE_NAME=dynamodb
+  MR_TRACKER_DYNAMODB_TABLE=your-tracker-table
+  MR_TRACKER_DYNAMODB_STATE_TABLE=your-state-table
+  MR_TRACKER_DYNAMODB_STATE_CONTENT_TABLE_NAME=your-state-content-table
+  MR_TRACKER_DYNAMODB_TYPE_TABLE_NAME=your-type-table
+  ```
+* Ensure the corresponding `.dbxml` file for DynamoDB is mounted into `conf/db-pool/`.
+* **Comment out any Cassandra-related configurations or `.dbxml` files**.
+
+> **Sample `.dbxml` files for Cassandra and DynamoDB are included in the repository**. You can customize or reuse them as needed.
 
 ## Usage
 
@@ -96,7 +138,7 @@ To build and run the stack:
 This will:
 
 * Start Martini on ports **8080 (HTTP)** and **8443 (HTTPS)**
-* Start example databases on their default ports (e.g., PostgreSQL on 5432, Cassandra on 9042)
+* Start the databases that you have enabled in the docker-compose.yml configuration on their default ports (e.g., PostgreSQL on 5432, Cassandra on 9042).
 
 To stop the stack:
 
@@ -147,7 +189,7 @@ For example, in your `.dbxml` configuration file:
 </database>
 ````
 
-This approach applies equally to other database types (e.g., MySQL, MongoDB) with the appropriate JDBC URL and driver. For detailed examples and database-specific properties, refer to the official [Martini JDBC configuration documentation](https://developer.lonti.com/docs/martini/installation-configuration/server-runtime/self-managed/configuration/dependencies/databases/jdbc/#database-properties). 
+This approach applies equally to other database types (e.g., MySQL, PostgreSQL) with the appropriate JDBC URL and driver. For detailed examples and database-specific properties, refer to the official [Martini JDBC configuration documentation](https://developer.lonti.com/docs/martini/installation-configuration/server-runtime/self-managed/configuration/dependencies/databases/jdbc/#database-properties). 
 
 > This works because Docker Compose creates a shared network (`martini_network`) where each service name acts as its hostname.
 
@@ -198,6 +240,8 @@ Be sure to update and mount the corresponding `.dbxml` configuration in `conf/db
 * Ensure Docker is installed and running before using this stack.
 * Martini requires a valid license key to run. Set it via the `MR_LICENSE` environment variable.
 * Logs and data will persist across container restarts through bind mounts to the host filesystem.
+
+
 
 
 
