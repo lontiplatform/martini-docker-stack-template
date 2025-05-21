@@ -122,8 +122,8 @@ Martini Tracker supports multiple databases. You can choose between the default 
   MR_TRACKER_DYNAMODB_STATE_CONTENT_TABLE_NAME=your-state-content-table
   MR_TRACKER_DYNAMODB_TYPE_TABLE_NAME=your-type-table
   ```
-* Ensure the corresponding `.dbxml` file for DynamoDB is mounted into `conf/db-pool/`.
-* **Comment out any Cassandra-related configurations or `.dbxml` files**.
+* Mount the DynamoDB-specific `.dbxml` files into `conf/db-pool/`.
+* **Comment out any Cassandra-related configurations and remove Cassandra-specific `.dbxml` files**.
 
 > **Sample `.dbxml` files for Cassandra and DynamoDB are included in the repository**. You can customize or reuse them as needed.
 
