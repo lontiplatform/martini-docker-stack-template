@@ -87,44 +87,47 @@ APP_USER_PASSWORD=your_app_user_password
 
 ### Using Tracker with Different Databases
 
-Martini Tracker supports multiple databases. You can choose between the default embedded **Nitrite** database or external options like **Cassandra** or **DynamoDB**. Configuration depends on your selection:
+By default, Martini Tracker uses the embedded **Nitrite** database. This is a lightweight, zero-config option that works out of the box.
 
-#### To use **Nitrite** (embedded database - default):
+#### Default: Use Embedded Tracker (Nitrite)
 
-* Set:
+1. Ensure the following is set in your environment:
 
-  ```env
-  MR_TRACKER_ENABLE_EMBEDDED_DATABASE=true
-  ```
-* **Remove or comment out all other `MR_TRACKER_*` environment variables**, including those for Cassandra or DynamoDB.
-* No `.dbxml` configuration is required — Martini uses the embedded database automatically.
+   ```env
+   MR_TRACKER_ENABLE_EMBEDDED_DATABASE=true
+   ```
+   
+2. Leave all other `MR_TRACKER_*` environment variables commented out or removed.
+3. No `.dbxml` configuration is required — Martini automatically uses the embedded database.
 
-#### To use **Cassandra**:
 
-* Set:
+#### To Use Cassandra Instead
 
-  ```env
-  MR_TRACKER_ENABLE_EMBEDDED_DATABASE=false
-  MR_TRACKER_DATABASE_NAME=cassandra
-  ```
-* Mount the Cassandra-specific `.dbxml` file into `conf/db-pool/`.
-* **Comment out all `MR_TRACKER_DYNAMODB_*` variables** if present.
+1. Change the value of `MR_TRACKER_ENABLE_EMBEDDED_DATABASE` to false, and set the database name:
 
-#### To use **DynamoDB**:
+   ```env
+   MR_TRACKER_ENABLE_EMBEDDED_DATABASE=false
+   MR_TRACKER_DATABASE_NAME=cassandra
+   ```
 
-* Set:
+2. Mount the Cassandra-specific `.dbxml` file into the `conf/db-pool/` directory.
+3. Ensure all `MR_TRACKER_DYNAMODB_*` variables are **commented out or removed**.
 
-  ```env
-  MR_TRACKER_ENABLE_EMBEDDED_DATABASE=false
-  MR_TRACKER_DATABASE_NAME=dynamodb
-  MR_TRACKER_DYNAMODB_TABLE=your-tracker-table
-  MR_TRACKER_DYNAMODB_STATE_TABLE=your-state-table
-  MR_TRACKER_DYNAMODB_STATE_CONTENT_TABLE_NAME=your-state-content-table
-  MR_TRACKER_DYNAMODB_TYPE_TABLE_NAME=your-type-table
-  ```
-* Mount the DynamoDB-specific `.dbxml` files into `conf/db-pool/`.
-* **Comment out any Cassandra-related configurations and remove Cassandra-specific `.dbxml` files**.
+#### To Use DynamoDB Instead
 
+1. Change the value of `MR_TRACKER_ENABLE_EMBEDDED_DATABASE` to false, and set the other required environment variables:
+
+   ```env
+   MR_TRACKER_ENABLE_EMBEDDED_DATABASE=false
+   MR_TRACKER_DATABASE_NAME=dynamodb
+   MR_TRACKER_DYNAMODB_TABLE=your-tracker-table
+   MR_TRACKER_DYNAMODB_STATE_TABLE=your-state-table
+   MR_TRACKER_DYNAMODB_STATE_CONTENT_TABLE_NAME=your-state-content-table
+   MR_TRACKER_DYNAMODB_TYPE_TABLE_NAME=your-type-table
+   ```
+
+2. Mount the DynamoDB-specific `.dbxml` file into the `conf/db-pool/` directory.
+3. Ensure all Cassandra-related settings and `.dbxml` files are **commented out and removed**.
 > **Sample `.dbxml` files for Cassandra and DynamoDB are included in the repository**. You can customize or reuse them as needed.
 
 ## Usage
