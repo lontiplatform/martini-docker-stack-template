@@ -41,7 +41,7 @@ Create a `.env` file in the root directory with the following variables:
 # Martini Runtime
 MR_LICENSE=your_martini_license_key             # Login to https://console.lonti.com to obtain your license key
 MR_TRACKER_DATABASE_NAME=
-MR_TRACKER_ENABLE_EMBEDDED_DATABASE=false        # Set value to `true` to use the embedded database or `false` to use Cassandra or DynamoDB as the Tracker database
+MR_TRACKER_ENABLE_EMBEDDED_DATABASE=            # Set value to `true` to use the embedded database or `false` to use Cassandra or DynamoDB as the Tracker database
 MR_TRACKER_DYNAMODB_TABLE=
 MR_TRACKER_DYNAMODB_STATE_TABLE=
 MR_TRACKER_DYNAMODB_STATE_CONTENT_TABLE_NAME=
@@ -96,7 +96,7 @@ By default, Martini Tracker uses the embedded **Nitrite** database. This is a li
    ```env
    MR_TRACKER_ENABLE_EMBEDDED_DATABASE=true
    ```
-   
+
 2. Leave all other `MR_TRACKER_*` environment variables commented out or removed.
 3. No `.dbxml` configuration is required — Martini automatically uses the embedded database.
 
